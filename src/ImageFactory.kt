@@ -1,14 +1,11 @@
 package com.yt8492
 
 import io.ktor.util.KtorExperimentalAPI
-import jdk.nashorn.internal.runtime.regexp.joni.Config.log
 import software.amazon.awssdk.auth.credentials.AwsCredentials
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
-import software.amazon.awssdk.services.s3.model.BucketCannedACL
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL
-import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.services.s3.model.*
 import java.io.File
 import java.net.URI
 import java.util.*
@@ -29,13 +26,21 @@ object ImageFactory {
         }
         .build()
 
-    fun putImage(file: File): String {
-        s3.createBucket {
-            it.bucket(bucketName)
-                .acl(BucketCannedACL.PUBLIC_READ)
-                .build()
+    init {
+        try {
+            s3.createBucket {
+                it.bucket(bucketName)
+                    .acl(BucketCannedACL.PUBLIC_READ)
+                    .build()
+            }
+        } catch (e: BucketAlreadyOwnedByYouException) {
+            println("bucket already created")
+        } catch (e: BucketAlreadyExistsException) {
+            println("bucket already exist")
         }
+    }
 
+    fun putImage(file: File): String {
         val name = UUID.randomUUID().toString().replace("-", "")
         val ext = file.extension
         val key = "images/$name.$ext"

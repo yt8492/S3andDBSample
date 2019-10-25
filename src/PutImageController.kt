@@ -1,12 +1,10 @@
 package com.yt8492
 
-import com.yt8492.model.GetImageRequest
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
-import io.ktor.request.receive
 import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.response.respondFile
