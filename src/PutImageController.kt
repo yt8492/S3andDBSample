@@ -19,9 +19,10 @@ import java.io.File
 
 @KtorExperimentalAPI
 fun Route.putImage() {
-    route("image") {
+    route("/image") {
         post {
             val multipart = call.receiveMultipart()
+            val keys = mutableListOf<String>()
             multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FileItem -> {
@@ -32,17 +33,17 @@ fun Route.putImage() {
                                 input.copyTo(output)
                             }
                         }
-                        ImageFactory.putImage(file)
+                        keys.add(ImageFactory.putImage(file))
                     }
                 }
                 part.dispose()
             }
-            call.respond(HttpStatusCode.Accepted)
+            call.respond(HttpStatusCode.Accepted, keys.first())
         }
 
         get {
-            val request = call.receive<GetImageRequest>()
-            val file = ImageFactory.getImage(request.key)
+            val request = call.request.queryParameters["key"]!!
+            val file = ImageFactory.getImage(request)
             call.respondFile(file)
         }
     }
